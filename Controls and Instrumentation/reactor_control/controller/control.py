@@ -64,22 +64,31 @@ class Controller:
 
 
 class Arduino:
-    def __init__(self, runtime = None):
-        pass
+    def __init__(self, max_speed = MAX_ROD_SPEED):
+        if max_speed <= 0:
+            raise ValueError("max_speed must be positive")
+        # if runtime <= 0:
+        #     raise ValueError("runtime must be positive")
+        # self.runtime = runtime
+        self.max_speed = max_speed
 
+    def update(self, desired_n, current_n, dt):
 
-    def update(self):
-        arduino = serial.Serial("/dev/cu.usbmodem1101", 9600)
+        print("inside controller update")
+        arduino = serial.Serial("/dev/cu.usbmodem101", 9600)
+        print("connected to arduino")
 
-        time.sleep(2)
-        while True:
-            if arduino.in_waiting:
-                reading = int(arduino.readline().decode().strip())
-                # Convert 0–1023 to 0–100% rod insertion
-                rod_position = (reading / 1023)
-                print(f"Control Rod Position: {rod_position:.1f}%")
+        # if arduino.in_waiting:
+        print("about to read value")
+        reading = int(arduino.readline().decode().strip())
+        print("read value")
+        # Convert 0–1023 to 0–1 rod speed compared to max_speed
+        rod_speed = (2*(reading / 1023)-1) * self.max_speed
 
+        return rod_speed 
+    
 # Register controller factories here to expose them through ``--controller``.
 CONTROLLERS = {
     "pid": lambda: Controller(kp=3e-4, ki=0, kd=0),
+    "arduino": lambda: Arduino()
 }

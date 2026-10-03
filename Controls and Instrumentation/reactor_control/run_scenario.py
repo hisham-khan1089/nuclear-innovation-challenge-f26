@@ -68,6 +68,10 @@ def main():
         controller_name=args.controller,
         seed=args.seed,
     )
+
+    print("created the build simulation stuff")
+
+    print("just started simulator.simulate()")
     simulator.simulate(
         controller,
         sensor_suite,

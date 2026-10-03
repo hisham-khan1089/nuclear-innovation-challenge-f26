@@ -9,6 +9,7 @@ from estimation.ekf import EKF
 from controller.control import MAX_ROD_SPEED
 from controller.state_machine import SafetySupervisor
 from run.plotting import plot_simulation
+import time
 
 # Measurement channels, in the order the EKF expects them.
 CHANNELS = ["power", "fuel_temp", "coolant_1_temp", "coolant_2_temp"]
@@ -170,6 +171,7 @@ class Simulation:
     def simulate(self, controller, sensor_suite, use_filter=True, actuator_fault=None):
         """Run the closed loop and return the final reactor state."""
 
+        print("inside simulator.simulate() now")
         current_state = self.model.x0.copy()
         number_of_steps = math.ceil(self.duration / self.dt)
 
@@ -189,8 +191,10 @@ class Simulation:
             measured_n=readings["power"],
             estimated_n=ekf.x[0],
         )
-
+        print("right before simulator.simulate() for loop ")
         for i in range(number_of_steps):
+            print("inside for loop")
+            start_time = time.perf_counter()
             t = i * self.dt
             remaining = self.duration - t
             if remaining <= 0:
@@ -199,7 +203,9 @@ class Simulation:
 
             current_n = ekf.x[0] if use_filter else readings["power"]
 
+            print("about to read raw_speed")
             raw_speed = controller.update(self.desired_n, current_n, step_dt)
+            print("finished reading raw_speed from Arduino")
             try:
                 speed = float(raw_speed)
             except (TypeError, ValueError) as exc:
@@ -276,6 +282,12 @@ class Simulation:
                 measured_n=readings["power"],
                 estimated_n=ekf.x[0],
             )
+
+            end_time = time.perf_counter()
+            elapsed = end_time - start_time
+            if isinstance(controller, Arduino):
+                time.sleep(self.dt-elapsed)
+
 
         return current_state
 
