@@ -191,7 +191,6 @@ class Simulation:
             estimated_n=ekf.x[0],
         )
         for i in range(number_of_steps):
-            print("inside for loop")
             start_time = time.perf_counter()
             t = i * self.dt
             remaining = self.duration - t
@@ -283,7 +282,9 @@ class Simulation:
             end_time = time.perf_counter()
             elapsed = end_time - start_time
             if isinstance(controller, Arduino):
-                time.sleep(self.dt-elapsed)
+                remaining_time = self.dt-elapsed
+                if remaining_time > 0:
+                    time.sleep(remaining_time)
 
 
         return current_state
