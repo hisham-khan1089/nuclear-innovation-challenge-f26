@@ -38,3 +38,8 @@ dist/
 # Playwright/browser test artifacts
 test-results/
 playwright-report/
+
+# only doing Controls and Instrumentation, can ignore everything else
+Leak Detection and Cleanup
+Reactor Design Optimization
+Security
