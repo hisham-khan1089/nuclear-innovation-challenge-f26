@@ -74,16 +74,20 @@ class Arduino:
 
     def update(self, desired_n, current_n, dt):
 
-        print("inside controller update")
         arduino = serial.Serial("/dev/cu.usbmodem101", 9600)
-        print("connected to arduino")
 
         # if arduino.in_waiting:
-        print("about to read value")
-        reading = int(arduino.readline().decode().strip())
-        print("read value")
+        raw = arduino.readline()
+        print("RAW DATA:", raw)
+        if raw:
+            reading = int(raw.decode().strip())
+            reading = np.clip(reading, 0, 1023)
+            print("READING:", reading)
+        else:
+            print("NO DATA RECEIVED FROM ARDUINO")
+
         # Convert 0–1023 to 0–1 rod speed compared to max_speed
-        rod_speed = (2*(reading / 1023)-1) * self.max_speed
+        rod_speed = (2*(reading / 1013)-1) * self.max_speed
 
         return rod_speed 
     

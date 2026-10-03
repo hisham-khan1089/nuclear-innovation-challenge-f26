@@ -6,7 +6,7 @@ from scipy.integrate import solve_ivp
 
 from reactor.model import ReactorModel
 from estimation.ekf import EKF
-from controller.control import MAX_ROD_SPEED
+from controller.control import MAX_ROD_SPEED, Arduino
 from controller.state_machine import SafetySupervisor
 from run.plotting import plot_simulation
 import time
@@ -171,7 +171,6 @@ class Simulation:
     def simulate(self, controller, sensor_suite, use_filter=True, actuator_fault=None):
         """Run the closed loop and return the final reactor state."""
 
-        print("inside simulator.simulate() now")
         current_state = self.model.x0.copy()
         number_of_steps = math.ceil(self.duration / self.dt)
 
@@ -191,7 +190,6 @@ class Simulation:
             measured_n=readings["power"],
             estimated_n=ekf.x[0],
         )
-        print("right before simulator.simulate() for loop ")
         for i in range(number_of_steps):
             print("inside for loop")
             start_time = time.perf_counter()
@@ -203,9 +201,8 @@ class Simulation:
 
             current_n = ekf.x[0] if use_filter else readings["power"]
 
-            print("about to read raw_speed")
             raw_speed = controller.update(self.desired_n, current_n, step_dt)
-            print("finished reading raw_speed from Arduino")
+
             try:
                 speed = float(raw_speed)
             except (TypeError, ValueError) as exc:
