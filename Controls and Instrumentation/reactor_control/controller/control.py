@@ -6,6 +6,8 @@ position and enforces the drive and travel limits.
 """
 
 import numpy as np
+import serial
+import time
 
 
 # Rod-drive speed limit, in reactivity per second.
@@ -60,6 +62,22 @@ class Controller:
         self.previous_error = error
         return clamped
 
+
+class Arduino:
+    def __init__(self, runtime = None):
+        pass
+
+
+    def update(self):
+        arduino = serial.Serial("/dev/cu.usbmodem1101", 9600)
+
+        time.sleep(2)
+        while True:
+            if arduino.in_waiting:
+                reading = int(arduino.readline().decode().strip())
+                # Convert 0–1023 to 0–100% rod insertion
+                rod_position = (reading / 1023)
+                print(f"Control Rod Position: {rod_position:.1f}%")
 
 # Register controller factories here to expose them through ``--controller``.
 CONTROLLERS = {
