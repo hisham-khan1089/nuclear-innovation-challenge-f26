@@ -64,21 +64,15 @@ class Controller:
 
 
 class Arduino:
-    def __init__(self, max_speed = MAX_ROD_SPEED):
+    def __init__(self, max_speed = MAX_ROD_SPEED, port = "/dev/cu.usbmodem101", baudrate=9600):
         if max_speed <= 0:
             raise ValueError("max_speed must be positive")
-        # if runtime <= 0:
-        #     raise ValueError("runtime must be positive")
-        # self.runtime = runtime
         self.max_speed = max_speed
+        self.arduino = serial.Serial(port, baudrate)
 
     def update(self, desired_n, current_n, dt):
 
-        arduino = serial.Serial("/dev/cu.usbmodem101", 9600)
-
-        # if arduino.in_waiting:
-        raw = arduino.readline()
-        print("RAW DATA:", raw)
+        raw = self.arduino.readline()
         if raw:
             reading = int(raw.decode().strip())
             reading = np.clip(reading, 0, 1023)
@@ -87,7 +81,7 @@ class Arduino:
             print("NO DATA RECEIVED FROM ARDUINO")
 
         # Convert 0–1023 to 0–1 rod speed compared to max_speed
-        rod_speed = (2*(reading / 1013)-1) * self.max_speed
+        rod_speed = (2*(reading / 1023)-1) * self.max_speed
 
         return rod_speed 
     
