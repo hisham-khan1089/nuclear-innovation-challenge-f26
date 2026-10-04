@@ -55,7 +55,7 @@ SCENARIOS = {
 }
 
 
-def build_simulation(name, duration=200.0, dt=0.5, controller_name="pid",
+def build_simulation(name, duration=200.0, dt=0.2, controller_name="pid",
                      seed=0):
     """Return a fresh simulation, controller, sensors, and actuator fault."""
 

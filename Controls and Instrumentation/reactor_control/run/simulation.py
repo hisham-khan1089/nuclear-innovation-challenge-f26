@@ -8,7 +8,7 @@ from reactor.model import ReactorModel
 from estimation.ekf import EKF
 from controller.control import MAX_ROD_SPEED, ROD_MAX, ROD_MIN, Arduino
 from controller.state_machine import SafetySupervisor
-from run.plotting import plot_simulation
+from run.plotting import plot_simulation, LivePlot
 import time
 
 # Measurement channels, in the order the EKF expects them.
@@ -164,7 +164,7 @@ class Simulation:
 
         return readings
 
-    def simulate(self, controller, sensor_suite, use_filter=True, actuator_fault=None):
+    def simulate(self, controller, sensor_suite, use_filter=True, actuator_fault=None, live_plotting=True):
         """Run the closed loop and return the final reactor state."""
 
         current_state = self.model.x0.copy()
@@ -186,6 +186,10 @@ class Simulation:
             measured_n=readings["power"],
             estimated_n=ekf.x[0],
         )
+
+        if live_plotting:
+            plotter = LivePlot(self)
+
         for i in range(number_of_steps):
             start_time = time.perf_counter()
             t = i * self.dt
@@ -280,6 +284,10 @@ class Simulation:
             if isinstance(controller, Arduino):
                 print(self.dt-elapsed)
                 time.sleep(self.dt-elapsed)
+
+            if live_plotting:
+                print("live plotting trying to update")
+                plotter.update()
 
 
         return current_state
