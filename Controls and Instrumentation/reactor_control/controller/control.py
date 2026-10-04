@@ -68,7 +68,7 @@ class Controller:
 
 class Arduino:
     def __init__(self, max_speed = MAX_ROD_SPEED, rod_min = ROD_MIN, rod_max = ROD_MAX,
-                 port = "/dev/cu.usbmodem101", baudrate=9600):
+                 port = "/dev/cu.usbmodem101", baudrate=9600, use_position=True):
         if max_speed <= 0:
             raise ValueError("max_speed must be positive")
         self.max_speed = max_speed
@@ -76,6 +76,7 @@ class Arduino:
         self.rod_max = rod_max
         self.port = port
         self.baudrate = baudrate
+        self.use_position = use_position
 
     def update(self, desired_n, current_n, dt):
         """Returns rod speed like other controller"""
@@ -110,5 +111,6 @@ class Arduino:
 # Register controller factories here to expose them through ``--controller``.
 CONTROLLERS = {
     "pid": lambda: Controller(kp=3e-4, ki=0, kd=0),
-    "arduino": lambda: Arduino()
+    "arduino_rod_position": lambda: Arduino(),
+    "arduino_rod_speed": lambda: Arduino(use_position=False)
 }
