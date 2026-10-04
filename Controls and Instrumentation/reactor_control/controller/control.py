@@ -13,6 +13,9 @@ import time
 # Rod-drive speed limit, in reactivity per second.
 MAX_ROD_SPEED = 2.5e-6
 
+# How far the rods can travel, in reactivity. Fully inserted to fully
+# withdrawn is ROD_MIN to ROD_MAX.
+ROD_MIN, ROD_MAX = -5e-4, 5e-4
 
 class Controller:
     def __init__(self, kp, ki, kd, max_speed=MAX_ROD_SPEED):
@@ -64,10 +67,13 @@ class Controller:
 
 
 class Arduino:
-    def __init__(self, max_speed = MAX_ROD_SPEED, port = "/dev/cu.usbmodem101", baudrate=9600):
+    def __init__(self, max_speed = MAX_ROD_SPEED, rod_min = ROD_MIN, rod_max = ROD_MAX,
+                 port = "/dev/cu.usbmodem101", baudrate=9600):
         if max_speed <= 0:
             raise ValueError("max_speed must be positive")
         self.max_speed = max_speed
+        self.rod_min = rod_min
+        self.rod_max = rod_max
         self.port = port
         self.baudrate = baudrate
 
@@ -85,6 +91,21 @@ class Arduino:
         rod_speed = (2*(reading / 1023)-1) * self.max_speed
         print('ROD SPEED:', rod_speed)
         return rod_speed 
+
+    def update_position(self):
+        "Returns rod position as opposed to rod speed"
+        arduino = serial.Serial(self.port, self.baudrate)
+        raw = int(arduino.readline().decode().strip())
+        if isinstance(raw, int):
+            reading = np.clip(raw, 0, 1023)
+            print("READING:", reading)
+        else:
+            raise ValueError("NO DATA RECEIVED FROM ARDUINO")
+
+        # Convert 0–1023 to 0–1 rod speed compared to max_speed
+        rod_position = reading/1023 * (self.rod_max-self.rod_min) + self.rod_min
+        print('ROD POSITION:', rod_position)
+        return rod_position 
     
 # Register controller factories here to expose them through ``--controller``.
 CONTROLLERS = {
