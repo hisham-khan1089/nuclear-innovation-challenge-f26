@@ -6,17 +6,13 @@ from scipy.integrate import solve_ivp
 
 from reactor.model import ReactorModel
 from estimation.ekf import EKF
-from controller.control import MAX_ROD_SPEED, Arduino
+from controller.control import MAX_ROD_SPEED, ROD_MAX, ROD_MIN, Arduino
 from controller.state_machine import SafetySupervisor
 from run.plotting import plot_simulation
 import time
 
 # Measurement channels, in the order the EKF expects them.
 CHANNELS = ["power", "fuel_temp", "coolant_1_temp", "coolant_2_temp"]
-
-# How far the rods can travel, in reactivity. Fully inserted to fully
-# withdrawn is ROD_MIN to ROD_MAX.
-ROD_MIN, ROD_MAX = -5e-4, 5e-4
 
 
 class Simulation:
@@ -282,9 +278,8 @@ class Simulation:
             end_time = time.perf_counter()
             elapsed = end_time - start_time
             if isinstance(controller, Arduino):
-                remaining_time = self.dt-elapsed
-                if remaining_time > 0:
-                    time.sleep(remaining_time)
+                print(self.dt-elapsed)
+                time.sleep(self.dt-elapsed)
 
 
         return current_state
