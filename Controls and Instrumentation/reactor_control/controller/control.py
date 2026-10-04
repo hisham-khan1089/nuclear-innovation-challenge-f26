@@ -11,11 +11,16 @@ import time
 
 
 # Rod-drive speed limit, in reactivity per second.
-MAX_ROD_SPEED = 2.5e-6
+# MAX_ROD_SPEED = 2.5e-6
+
+MAX_ROD_SPEED = 4e-4
+
 
 # How far the rods can travel, in reactivity. Fully inserted to fully
 # withdrawn is ROD_MIN to ROD_MAX.
+# ROD_MIN, ROD_MAX = -5e-4, 5e-4
 ROD_MIN, ROD_MAX = -5e-4, 5e-4
+
 
 class Controller:
     def __init__(self, kp, ki, kd, max_speed=MAX_ROD_SPEED):
@@ -91,7 +96,21 @@ class Arduino:
         # Convert 0–1023 to 0–1 rod speed compared to max_speed
         rod_speed = (2*(reading / 1023)-1) * self.max_speed
         print('ROD SPEED:', rod_speed)
-        return rod_speed 
+        return rod_speed
+
+    def send_status(self, safety_state):
+        arduino = serial.Serial(self.port, self.baudrate)
+
+        if safety_state == "NORMAL":
+            arduino.write(b'N')
+
+        elif safety_state in ("WARNING", "LIMITING"):
+            arduino.write(b'H')
+
+        elif safety_state in ("SCRAM", "SHUTDOWN"):
+            arduino.write(b'S')
+
+        arduino.close()
 
     def update_position(self):
         "Returns rod position as opposed to rod speed"

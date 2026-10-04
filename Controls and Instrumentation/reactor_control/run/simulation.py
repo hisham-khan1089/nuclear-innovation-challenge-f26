@@ -226,6 +226,10 @@ class Simulation:
                     + readings["coolant_2_temp"]
                 ),
             })
+
+            if isinstance(controller, Arduino):
+                controller.send_status(safety_state)
+
             supervised_rho = float(self.safety.apply(commanded_rho))
 
             if self.safety.state in ("SCRAM", "SHUTDOWN"):
