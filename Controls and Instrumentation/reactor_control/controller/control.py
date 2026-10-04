@@ -68,21 +68,22 @@ class Arduino:
         if max_speed <= 0:
             raise ValueError("max_speed must be positive")
         self.max_speed = max_speed
-        self.arduino = serial.Serial(port, baudrate)
+        self.port = port
+        self.baudrate = baudrate
 
     def update(self, desired_n, current_n, dt):
-
-        raw = self.arduino.readline()
-        if raw:
-            reading = int(raw.decode().strip())
-            reading = np.clip(reading, 0, 1023)
+        """Returns rod speed like other controller"""
+        arduino = serial.Serial(self.port, self.baudrate)
+        raw = int(arduino.readline().decode().strip())
+        if isinstance(raw, int):
+            reading = np.clip(raw, 0, 1023)
             print("READING:", reading)
         else:
-            print("NO DATA RECEIVED FROM ARDUINO")
+            raise ValueError("NO DATA RECEIVED FROM ARDUINO")
 
         # Convert 0–1023 to 0–1 rod speed compared to max_speed
         rod_speed = (2*(reading / 1023)-1) * self.max_speed
-
+        print('ROD SPEED:', rod_speed)
         return rod_speed 
     
 # Register controller factories here to expose them through ``--controller``.
