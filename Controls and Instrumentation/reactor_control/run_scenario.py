@@ -60,6 +60,13 @@ def main():
         action="store_true",
         help="Skip plot windows for headless runs.",
     )
+
+    parser.add_argument(
+        "--live-plot",
+        action="store_true",
+        help="Live plotting dashboard as opposed to static after simulation ends"
+    )
+
     args = parser.parse_args()
 
     simulator, controller, sensor_suite, actuator_fault = build_simulation(
@@ -74,6 +81,7 @@ def main():
         sensor_suite,
         use_filter=not args.no_filter,
         actuator_fault=actuator_fault,
+        live_plotting=args.live_plot
     )
 
     time_by_state = {
