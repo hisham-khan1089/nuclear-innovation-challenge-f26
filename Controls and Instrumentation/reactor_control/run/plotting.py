@@ -184,26 +184,17 @@ class LivePlot:
         # Interactive mode is required so plt.show() does not block simulate().
         plt.ion()
 
-        self.fig, axes_2d = plt.subplots(
-            2, 3, figsize=(15, 9), constrained_layout=True
-        )
+        self.fig, axes_2d = plt.subplots(2, 3, figsize=(14, 8), constrained_layout=True)
         # Store a normal array rather than a numpy.flatiter.
         self.axes = axes_2d.ravel()
 
         # 0: POWER
         ax = self.axes[0]
-        self.true_power_line, = ax.plot(
-            [], [], label="True neutron population", color="black"
-        )
-        self.measured_power_scatter = ax.scatter(
-            [], [], label="Raw noisy reading", color="gray", s=6, alpha=0.4
-        )
-        self.estimated_power_line, = ax.plot(
-            [], [], label="EKF estimate", color="tab:blue"
-        )
-        self.desired_power_line, = ax.plot(
-            [], [], "--", label="Desired neutron population"
-        )
+        self.true_power_line, = ax.plot([], [], label="True neutron population", color="black")
+        self.measured_power_scatter = ax.scatter([], [], label="Raw noisy reading", color="gray", s=6, alpha=0.4)
+        self.estimated_power_line, = ax.plot([], [], label="EKF estimate", color="tab:blue")
+        self.desired_power_line, = ax.plot([], [], "--", label="Desired neutron population")
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Normalized power")
         ax.set_title("Reactor Power: true vs. measured vs. filtered")
@@ -212,12 +203,9 @@ class LivePlot:
 
         # 1: CONTROL ROD COMMAND
         ax = self.axes[1]
-        self.commanded_rod_line, = ax.plot(
-            [], [], "--", label="Commanded rho", color="tab:red", alpha=0.7
-        )
-        self.applied_rod_line, = ax.plot(
-            [], [], label="Applied rho", color="orange"
-        )
+        self.commanded_rod_line, = ax.plot([], [], "--", label="Commanded rho", color="tab:red", alpha=0.7)
+        self.applied_rod_line, = ax.plot([], [], label="Applied rho", color="orange")
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Reactivity, rho (dk/k)")
         ax.set_title("Control Rod: commanded vs. applied")
@@ -226,9 +214,8 @@ class LivePlot:
 
         # 2: THERMAL FEEDBACK
         ax = self.axes[2]
-        self.feedback_line, = ax.plot(
-            [], [], label="Thermal reactivity", color="green"
-        )
+        self.feedback_line, = ax.plot([], [], label="Thermal reactivity", color="green")
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Reactivity, rho (dk/k)")
         ax.set_title("Thermal Reactivity Feedback")
@@ -237,12 +224,9 @@ class LivePlot:
 
         # 3: ESTIMATION ERROR
         ax = self.axes[3]
-        self.measured_err_line, = ax.plot(
-            [], [], label="Raw error", color="gray"
-        )
-        self.estimated_err_line, = ax.plot(
-            [], [], label="EKF error", color="tab:blue"
-        )
+        self.measured_err_line, = ax.plot([], [], label="Raw error", color="gray")
+        self.estimated_err_line, = ax.plot([], [], label="EKF error", color="tab:blue")
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("|error|")
         ax.set_title("Power Estimation Error")
@@ -270,12 +254,8 @@ class LivePlot:
 
         # 5: TEMPERATURES & LIMITS
         ax = self.axes[5]
-        self.fuel_temp_line, = ax.plot(
-            [], [], label="Fuel temp (K)", color="firebrick"
-        )
-        self.coolant_temp_line, = ax.plot(
-            [], [], label="Coolant temp avg (K)", color="teal"
-        )
+        self.fuel_temp_line, = ax.plot([], [], label="Fuel temp (K)", color="firebrick")
+        self.coolant_temp_line, = ax.plot([], [], label="Coolant temp avg (K)", color="teal")
 
         if hasattr(simulator, "safety") and hasattr(simulator.safety, "limits"):
             ax.axhline(
@@ -330,6 +310,8 @@ class LivePlot:
             self.applied_rod_line.set_data(
                 sim.control_times, sim.control_values
             )
+
+            
 
         # 3. Thermal feedback
         self.feedback_line.set_data(t, sim.feedback_rho_values)
